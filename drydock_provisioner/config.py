@@ -56,6 +56,7 @@ class DrydockConfig(object):
 
     # API Authentication options
     auth_options = [
+        cfg.StrOpt('auth_strategy', default='keystone', help='Client request authentication strategy'),
         cfg.StrOpt('admin_token', default='bigboss', help='X-Auth-Token value to bypass backend authentication', secret=True),
         cfg.BoolOpt('bypass_enabled', default=False, help='Can backend authentication be bypassed?'),
     ]
@@ -99,7 +100,9 @@ class DrydockConfig(object):
         self.conf.register_opts(DrydockConfig.plugin_options, group='plugins')
         self.conf.register_opts(DrydockConfig.timeout_options, group='timeouts')
 
+
 IGNORED_MODULES = ('drydock', 'config')
+
 config_mgr = DrydockConfig()
 
 def list_opts():
