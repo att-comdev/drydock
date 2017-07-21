@@ -17,9 +17,9 @@ as Drydock or a separate VM.
 
 On the VM that MaaS is installed on, create an admin user:
 
-```
-$ sudo maas createadmin --username=admin --email=admin@example.com
-```
+::
+
+    $ sudo maas createadmin --username=admin --email=admin@example.com
 
 You can now access the MaaS UI by pointing a browser at http://maas_vm_ip:5240/MAAS
 and follow the configuration journey_ https://docs.ubuntu.com/maas/2.2/en/installconfig-webui-conf-journey
@@ -30,12 +30,12 @@ Drydock Configuration
 
 Clone the git repo and customize your configuration file
 
-```
-git clone https://github.com/att-comdev/drydock
-mkdir /tmp/drydock-etc
-cp drydock/examples/drydock.conf /tmp/drydock-etc/
-cp -r drydock/examples/bootdata /tmp/drydock-etc/
-```
+::
+
+    git clone https://github.com/att-comdev/drydock
+    mkdir /tmp/drydock-etc
+    cp drydock/examples/drydock.conf /tmp/drydock-etc/
+    cp -r drydock/examples/bootdata /tmp/drydock-etc/
 
 In `/tmp/drydock-etc/drydock.conf` customize your maas_api_url to be
 the URL you used when opening the web UI and maas_api_key. 
@@ -49,9 +49,9 @@ Drydock
 Drydock is easily installed via the Docker image at quay.io/attcomdev/drydock:latest.  
 You will need to customize and mount your configuration file
 
-```
-$ sudo docker run -v /tmp/drydock-etc:/etc/drydock -P -d drydock:latest
-```
+::
+
+    $ sudo docker run -v /tmp/drydock-etc:/etc/drydock -P -d drydock:latest
 
 Configure Site
 --------------
@@ -64,17 +64,17 @@ Load Site
 
 Use the Drydock CLI create a design and load the configuration
 
-```
-$ drydock --token <token> --url <drydock_url> design create
-$ drydock --token <token> --url <drydock_url> part create -d <design_id> -f <yaml_file>
-```
+::
+
+    $ drydock --token <token> --url <drydock_url> design create
+    $ drydock --token <token> --url <drydock_url> part create -d <design_id> -f <yaml_file>
 
 Use the CLI to create tasks to deploy your site
 
-```
-$ drydock --token <token> --url <drydock_url> task create -d <design_id> -a verify_site
-$ drydock --token <token> --url <drydock_url> task create -d <design_id> -a prepare_site
-$ drydock --token <token> --url <drydock_url> task create -d <design_id> -a prepare_node
-$ drydock --token <token> --url <drydock_url> task create -d <design_id> -a deploy_node
-```
+::
+
+    $ drydock --token <token> --url <drydock_url> task create -d <design_id> -a verify_site
+    $ drydock --token <token> --url <drydock_url> task create -d <design_id> -a prepare_site
+    $ drydock --token <token> --url <drydock_url> task create -d <design_id> -a prepare_node
+    $ drydock --token <token> --url <drydock_url> task create -d <design_id> -a deploy_node
 

@@ -18,7 +18,7 @@ downstream services.
     * Preferrably Baremetal will have an IPMI OOB interface
     * Either VM or Baremetal will need to have one interface on the same L2 network (LAN or VLAN) as the MaaS VM
 
-See the `Getting Started <docs/getting_started.rst>`_ guide  for instructions.
+See the [Getting Started](docs/getting_started.rst) guide  for instructions.
 
 ## Modular service
 
