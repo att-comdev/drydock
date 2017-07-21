@@ -3,8 +3,9 @@ A python REST orchestrator to translate a YAML host topology to a provisioned se
 
 To build and run, first move into the root directory of the repo and run:
 
+    $ tox -e genconfig
     $ sudo docker build . -t drydock
-    $ sudo docker run -d -v $(pwd)/examples:/etc/drydock -P --name='drydock' drydock
+    $ sudo docker run -d -v $(pwd)/etc/drydock:/etc/drydock -P --name='drydock' drydock
     $ DDPORT=$(sudo docker port drydock 8000/tcp | awk -F ':' '{ print $NF }')
     $ curl -v http://localhost:${DDPORT}/api/v1.0/designs
 
