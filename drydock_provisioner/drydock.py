@@ -76,5 +76,11 @@ def start_drydock():
 
     return wsgi_callable
 
+# Initialization compatible with PasteDeploy
+def paste_start_drydock(global_conf, **kwargs):
+    # At this time just ignore everything in the paste configuration and rely on oslo_config
+
+    return drydock
+
 drydock = start_drydock()
 
