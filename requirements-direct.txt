@@ -10,4 +10,4 @@ bson===0.4.7
 oslo.config
 click===6.7
 PasteDeploy==1.5.2
-keystonemiddleware===4.17.0
+keystonemiddleware===4.6.0
