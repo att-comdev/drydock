@@ -12,27 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import falcon
 import logging
 import uuid
+import re
+
+import falcon
 
 from oslo_config import cfg
 
 class AuthMiddleware(object):
 
+    def __init__(self):
+        self.logger = logging.getLogger('drydock')
+
     # Authentication
     def process_request(self, req, resp):
         ctx = req.context
-        token = req.get_header('X-Auth-Token')
 
-        user = self.validate_token(token)
+        for k, v in req.headers.items():
+            self.logger.debug("Request with header %s: %s" % (k, v))
 
-        if user is not None:
-            ctx.set_user(user)
-            user_roles = self.role_list(user)
-            ctx.add_roles(user_roles)
+        auth_status = req.get_header('X-IDENTITY-STATUS')
+
+        if auth_status == 'Confirmed':
+            # Process account and roles
+            ctx.authenticated = True
+            ctx.user = req.get_header('X-USER-NAME')
+            ctx.project = req.get_header('X-PROJECT-NAME')
+            ctx.domain = req.get_header('X-PROJECT-DOMAIN-NAME')
+            ctx.add_roles(req.get_header('X-ROLES').split(','))
+            self.logger.debug('Request from authenticated user %s with roles %s' % (ctx.user, ','.join(ctx.roles)))
         else:
-            ctx.add_role('anyone')
+            ctx.authenticated = False
+
 
     # Authorization
     def process_resource(self, req, resp, resource, params):
