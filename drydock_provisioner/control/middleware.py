@@ -54,38 +54,21 @@ class AuthMiddleware(object):
             raise falcon.HTTPUnauthorized('Authentication required',
                                           ('This resource requires an authorized role.'))
 
-    # Return the username associated with an authenticated token or None
-    def validate_token(self, token):
-        if token == '42':
-            return 'scott'
-        elif token == 'bigboss':
-            return 'admin'
-        else:
-            return None
-
-    # Return the list of roles assigned to the username
-    # Roles need to be an enum
-    def role_list(self, username):
-        if username == 'scott':
-            return ['user']
-        elif username == 'admin':
-            return ['user', 'admin']
 
 class ContextMiddleware(object):
+
+    def __init__(self):
+        # Setup validation pattern for external marker
+        UUIDv4_pattern = '^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$';
+        self.marker_re = re.compile(UUIDv4_pattern, re.I)
 
     def process_request(self, req, resp):
         ctx = req.context
 
-        requested_logging = req.get_header('X-Log-Level')
-
-        if (cfg.CONF.logging.log_level == 'DEBUG' or
-           (requested_logging == 'DEBUG' and 'admin' in ctx.roles)):
-            ctx.set_log_level('DEBUG')
-        elif requested_logging == 'INFO':
-            ctx.set_log_level('INFO')
-
         ext_marker = req.get_header('X-Context-Marker')
-        ctx.set_external_marker(ext_marker if ext_marker is not None else '')
+
+        if ext_marker is not None and self.marker_re.fullmatch(ext_marker):
+            ctx.set_external_marker(ext_marker)
 
 class LoggingMiddleware(object):
 
