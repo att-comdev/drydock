@@ -199,9 +199,15 @@ class DesignsPartResource(StatefulResource):
         self.orchestrator = orchestrator
 
     def on_get(self, req , resp, design_id, kind, name):
+        policy_action = 'physical_provisioner:read_data'
+        ctx = req.context
         source = req.params.get('source', 'designed')
 
         try:
+            if not self.check_policy(policy_action, ctx):
+                self.access_denied(req, resp, policy_action)
+                return
+
             design = None
             if source == 'compiled':
                 design = self.orchestrator.get_effective_site(design_id)
@@ -230,3 +236,6 @@ class DesignsPartResource(StatefulResource):
         except errors.DesignError as dex:
             self.error(req.context, str(dex))
             self.return_error(resp, falcon.HTTP_404, message=str(dex), retry=False)
+        except Exception as exc:
+            self.error(req.context, str(exc))
+            self.return_error(resp. falcon.HTTP_500, message=str(exc), retry=False)
