@@ -84,9 +84,15 @@ class DesignResource(StatefulResource):
         self.orchestrator = orchestrator
 
     def on_get(self, req, resp, design_id):
+        policy_action = 'physical_provisioner:read_data'
         source = req.params.get('source', 'designed')
+        ctx = req.context
 
         try:
+            if not self.check_policy(policy_action, ctx):
+                self.access_denied(req, resp, policy_action)
+                return
+
             design = None
             if source == 'compiled':
                 design = self.orchestrator.get_effective_site(design_id)
