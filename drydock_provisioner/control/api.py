@@ -20,7 +20,7 @@ from .bootdata import *
 from .base import DrydockRequest
 from .middleware import AuthMiddleware, ContextMiddleware, LoggingMiddleware
 
-def start_api(state_manager=None, ingester=None, orchestrator=None):
+def start_api(state_manager=None, ingester=None, orchestrator=None, policy_engine=None):
     """
     Start the Drydock API service
 
@@ -28,6 +28,8 @@ def start_api(state_manager=None, ingester=None, orchestrator=None):
                             state persistence
     :param ingester:        Instance of drydock_provisioner.ingester.ingester.Ingester for handling design
                             part input
+    :param orchestrator:    Instance of drydock_provisioner.orchestrator.Orchestrator for managing tasks
+    :param policy_engine:   Instance of drydock_provisioner.policy.DrydockPolicy for RBAC enforcement
     """
     control_api = falcon.API(request_type=DrydockRequest,
                              middleware=[AuthMiddleware(), ContextMiddleware(), LoggingMiddleware()])
@@ -35,18 +37,23 @@ def start_api(state_manager=None, ingester=None, orchestrator=None):
     # v1.0 of Drydock API
     v1_0_routes = [
     # API for managing orchestrator tasks
-        ('/tasks', TasksResource(state_manager=state_manager, orchestrator=orchestrator)),
-        ('/tasks/{task_id}', TaskResource(state_manager=state_manager)),
+        ('/tasks', TasksResource(state_manager=state_manager, orchestrator=orchestrator, policy_engine=policy_engine)),
+        ('/tasks/{task_id}', TaskResource(state_manager=state_manager, policy_engine=policy_engine)),
 
     # API for managing site design data
-        ('/designs', DesignsResource(state_manager=state_manager)),
-        ('/designs/{design_id}', DesignResource(state_manager=state_manager, orchestrator=orchestrator)),
-        ('/designs/{design_id}/parts', DesignsPartsResource(state_manager=state_manager, ingester=ingester)),
-        ('/designs/{design_id}/parts/{kind}', DesignsPartsKindsResource(state_manager=state_manager)),
-        ('/designs/{design_id}/parts/{kind}/{name}', DesignsPartResource(state_manager=state_manager, orchestrator=orchestrator)),
+        ('/designs', DesignsResource(state_manager=state_manager, policy_engine=policy_engine)),
+        ('/designs/{design_id}', DesignResource(state_manager=state_manager, orchestrator=orchestrator,
+                                                policy_engine=policy_engine)),
+        ('/designs/{design_id}/parts', DesignsPartsResource(state_manager=state_manager, ingester=ingester,
+                                                            policy_engine=policy_engine)),
+        ('/designs/{design_id}/parts/{kind}', DesignsPartsKindsResource(state_manager=state_manager,
+                                                                        policy_engine=policy_engine)),
+        ('/designs/{design_id}/parts/{kind}/{name}', DesignsPartResource(state_manager=state_manager, orchestrator=orchestrator,
+                                                                         policy_engine=policy_engine)),
 
     # API for nodes to discover their bootdata during curtin install
-        ('/bootdata/{hostname}/{data_key}', BootdataResource(state_manager=state_manager, orchestrator=orchestrator))
+        ('/bootdata/{hostname}/{data_key}', BootdataResource(state_manager=state_manager, orchestrator=orchestrator,
+                                                             policy_engine=policy_engine))
     ]
 
     for path, res in v1_0_routes:

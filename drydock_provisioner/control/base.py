@@ -20,9 +20,16 @@ import drydock_provisioner.error as errors
 
 class BaseResource(object):
 
-    def __init__(self):
+    def __init__(self, policy_engine=None):
         self.logger = logging.getLogger('control')
-        self.authorized_roles = []
+        
+        if policy_engine is None:
+            raise ValueError('API resources require a RBAC policy engine')
+        else:
+            self.policy = policy_engine
+
+    def check_policy(self, action, ctx):
+        return self.policy.authorize(action, ctx)
 
     def on_options(self, req, resp):
         self_attrs = dir(self)
@@ -35,18 +42,6 @@ class BaseResource(object):
 
         resp.headers['Allow'] = ','.join(allowed_methods)
         resp.status = falcon.HTTP_200
-
-    # For authorizing access at the Resource level. A Resource requiring
-    # finer grained authorization at the method or instance level must
-    # implement that in the request handlers
-    def authorize_roles(self, role_list):
-        authorized = set(self.authorized_roles)
-        applied = set(role_list)
-
-        if authorized.isdisjoint(applied):
-            return False
-        else:
-            return True
 
     def req_json(self, req):
         if req.content_length is None or req.content_length == 0:
@@ -101,8 +96,8 @@ class BaseResource(object):
 
 class StatefulResource(BaseResource):
 
-    def __init__(self, state_manager=None):
-        super(StatefulResource, self).__init__()
+    def __init__(self, state_manager=None, **kwargs):
+        super(StatefulResource, self).__init__(**kwargs)
 
         if state_manager is None:
             self.error(None, "StatefulResource:init - StatefulResources require a state manager be set")

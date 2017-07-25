@@ -69,8 +69,12 @@ def start_drydock():
     if 'MAAS_API_KEY' in os.environ:
         cfg.CONF.set_override(name='maas_api_key', override=os.environ['MAAS_API_KEY'], group='maasdriver')
 
+    # Setup the RBAC policy enforcer
+    policy_engine = policy.DrydockPolicy()
+    policy_engine.register_policy()
 
-    wsgi_callable = api.start_api(state_manager=state, ingester=input_ingester, orchestrator=orchestrator)
+    wsgi_callable = api.start_api(state_manager=state, ingester=input_ingester,
+                                  orchestrator=orchestrator, policy_engine=policy_engine)
 
     # Now that loggers are configured, log the effective config
     cfg.CONF.log_opt_values(logging.getLogger(cfg.CONF.logging.global_logger_name), logging.DEBUG)
