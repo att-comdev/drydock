@@ -181,7 +181,15 @@ class DesignsPartsKindsResource(StatefulResource):
         self.authorized_roles = ['user']
 
     def on_get(self, req, resp, design_id, kind):
-        pass
+        policy_action = 'physical_provisioner:read_data'
+        ctx = req.context
+
+        if self.check_policy(policy_action, ctx):
+            resp.status = falcon.HTTP_200
+            return
+        else:
+            self.access_denied(req, resp, policy_action)
+            return
 
 class DesignsPartResource(StatefulResource):
 
