@@ -116,7 +116,12 @@ class DesignsPartsResource(StatefulResource):
             raise ValueError("DesignsPartsResource requires a configured Ingester instance")
 
     def on_post(self, req, resp, design_id):
+        policy_action = 'physical_provisioner:ingest_data'
         ingester_name = req.params.get('ingester', None)
+
+        if not self.check_policy(policy_action, ctx):
+            self.access_denied(req, resp, policy_action)
+            return
 
         if ingester_name is None:
             self.error(None, "DesignsPartsResource POST requires parameter 'ingester'")
@@ -137,6 +142,12 @@ class DesignsPartsResource(StatefulResource):
                 self.return_error(resp, falcon.HTTP_400, message="Ingester %s not registered" % ingester_name, retry=False)
 
     def on_get(self, req, resp, design_id):
+        policy_action = 'physical_provisioner:ingest_data'
+
+        if not self.check_policy(policy_action, ctx):
+            self.access_denied(req, resp, policy_action)
+            return
+
         try:
             design = self.state_manager.get_design(design_id)
         except DesignError:
