@@ -31,6 +31,14 @@ class BaseResource(object):
     def check_policy(self, action, ctx):
         return self.policy.authorize(action, ctx)
 
+    def access_denied(self, req, resp, action):
+        if req.context.authenticated:
+            self.info(req.context, "Error - Forbidden access - action: %s" % action)
+            self.return_error(resp, falcon.HTTP_403, message="Forbidden", retry=False)
+        else:
+            self.info(req.context, "Error - Unauthenticated access")
+            self.return_error(resp, falcon.HTTP_401, message="Unauthenticated", retry=False)
+
     def on_options(self, req, resp):
         self_attrs = dir(self)
         methods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'PATCH']

@@ -38,14 +38,8 @@ class DesignsResource(StatefulResource):
                 resp.body = json.dumps(designs)
                 resp.status = falcon.HTTP_200
             else:
-                if ctx.authenticated:
-                    self.info(req.context, "Error - Forbidden access - action: %s" % policy_action)
-                    self.return_error(resp, falcon.HTTP_403, message="Forbidden", retry=False)
-                    return
-                else:
-                    self.info(req.context, "Error - Unauthenticated access")
-                    self.return_error(resp, falcon.HTTP_401, message="Unauthenticated", retry=False)
-                    return
+                self.access_denied(req, resp, policy_action)
+                return
         except Exception as ex:
             self.error(req.context, "Exception raised: %s" % str(ex))
             self.return_error(resp, falcon.HTTP_500, message="Error accessing design list", retry=True)
@@ -56,14 +50,9 @@ class DesignsResource(StatefulResource):
 
         try:
             if not self.check_policy(policy_action, ctx):
-                if ctx.authenticated:
-                    self.info(req.context, "Error - Forbidden access - action: %s" % policy_action)
-                    self.return_error(resp, falcon.HTTP_403, message="Forbidden", retry=False)
-                    return
-                else:
-                    self.info(req.context, "Error - Unauthenticated access - action: %s" % policy_action)
-                    self.return_error(resp, falcon.HTTP_401, message="Unauthenticated", retry=False)
-                    return
+                self.access_denied(req, resp, policy_action)
+                return
+
             json_data = self.req_json(req)
             design = None
             if json_data is not None:
