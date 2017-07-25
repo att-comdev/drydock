@@ -32,27 +32,34 @@ class AuthMiddleware(object):
         for k, v in req.headers.items():
             self.logger.debug("Request with header %s: %s" % (k, v))
 
-        auth_status = req.get_header('X-IDENTITY-STATUS')
+        auth_status = req.get_header('X-SERVICE-IDENTITY-STATUS') 
+        service = True 
+        
+        if auth_status is None:
+            auth_status = req.get_header('X-IDENTITY-STATUS')
+            service = False
 
         if auth_status == 'Confirmed':
             # Process account and roles
             ctx.authenticated = True
-            ctx.user = req.get_header('X-USER-NAME')
-            ctx.project = req.get_header('X-PROJECT-NAME')
-            ctx.domain = req.get_header('X-PROJECT-DOMAIN-NAME')
-            ctx.add_roles(req.get_header('X-ROLES').split(','))
+            ctx.user = req.get_header('X-SERVICE-USER-NAME') if service else req.get_header('X-USER-NAME')
+            ctx.user_id = req.get_header('X-SERVICE-USER-ID') if service else req.get_header('X-USER-ID')
+            ctx.user_domain_id = req.get_header('X-SERVICE-USER-DOMAIN-ID') if service else req.get_header('X-USER-DOMAIN-ID')
+            ctx.project_id = req.get_header('X-SERVICE-PROJECT-ID') if service else req.get_header('X-PROJECT-ID')
+            ctx.project_domain_id = req.get_header('X-SERVICE-PROJECT-DOMAIN-ID') if service else req.get_header('X-PROJECT-DOMAIN-NAME')
+            if service:
+                ctx.add_roles(req.get_header('X-SERVICE-ROLES').split(','))
+            else:
+                ctx.add_roles(req.get_header('X-ROLES').split(','))
+            
+            if req.get_header('X-IS-ADMIN-PROJECT') == 'True':
+                ctx.is_admin_project = True
+            else:
+                ctx.is_admin_project = False
+
             self.logger.debug('Request from authenticated user %s with roles %s' % (ctx.user, ','.join(ctx.roles)))
         else:
             ctx.authenticated = False
-
-
-    # Authorization
-    def process_resource(self, req, resp, resource, params):
-        ctx = req.context
-
-        if not resource.authorize_roles(ctx.roles):
-            raise falcon.HTTPUnauthorized('Authentication required',
-                                          ('This resource requires an authorized role.'))
 
 
 class ContextMiddleware(object):
@@ -69,6 +76,7 @@ class ContextMiddleware(object):
 
         if ext_marker is not None and self.marker_re.fullmatch(ext_marker):
             ctx.set_external_marker(ext_marker)
+
 
 class LoggingMiddleware(object):
 

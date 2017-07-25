@@ -110,10 +110,13 @@ class DrydockRequestContext(object):
 
     def __init__(self):
         self.log_level = 'ERROR'
-        self.user = None
+        self.user = None    # Username
+        self.user_id = None # User ID (UUID)
+        self.user_domain_id = None # Domain owning user
         self.roles = ['anyone']
-        self.project = None
-        self.domain = None
+        self.project_id = None
+        self.project_domain_id = None # Domain owning project
+        self.is_admin_project = False
         self.authenticated = False
         self.request_id = str(uuid.uuid4())
         self.external_marker = '' 
@@ -140,6 +143,19 @@ class DrydockRequestContext(object):
 
     def set_external_marker(self, marker):
         self.external_marker = marker
+
+    def to_policy_view(self):
+        policy_dict = {}
+
+        policy_dict['user_id'] = self.user_id
+        policy_dict['user_domain_id'] = self.user_domain_id
+        policy_dict['project_id'] = self.project_id
+        policy_dict['project_domain_id'] = self.project_domain_id
+        policy_dict['roles'] = self.roles
+        policy_dict['is_admin_project'] = self.is_admin_project
+
+        return policy_dict
+
 
 class DrydockRequest(request.Request):
     context_type = DrydockRequestContext
