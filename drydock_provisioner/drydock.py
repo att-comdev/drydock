@@ -17,6 +17,7 @@ import os
 
 from oslo_config import cfg
 
+from drydock_provisioner import policy
 import drydock_provisioner.config as config
 import drydock_provisioner.objects as objects
 import drydock_provisioner.ingester as ingester
