@@ -27,15 +27,35 @@ class TasksResource(StatefulResource):
         self.orchestrator = orchestrator
 
     def on_get(self, req, resp):
-        task_id_list = [str(x.get_id()) for x in self.state_manager.tasks]
-        resp.body = json.dumps(task_id_list)
+        policy_action = 'physical_provisioner:read_task'
+        ctx = req.context
 
+        try:
+            if self.check_policy(policy_action, ctx):
+                task_id_list = [str(x.get_id()) for x in self.state_manager.tasks]
+                resp.body = json.dumps(task_id_list)
+                resp.status = falcon.HTTP_200
+            else:
+                self.access_denied(req, resp, policy_action)
+                return
+        except Exception as ex:
+            self.error(req.context, "Unknown error: %s\n%s" % (str(ex), traceback.format_exc()))
+            self.return_error(resp, falcon.HTTP_500, message="Unknown error", retry=False)
+            
     def on_post(self, req, resp):
+        ctx = req.context
+
         try:
             json_data = self.req_json(req)
             
             design_id = json_data.get('design_id', None)
             action = json_data.get('action', None)
+            policy_action = "physical_provisioner:%s" % action
+
+            if not self.check_policy(policy_action, ctx):
+                self.access_denied(req, resp, policy_action)
+                return
+
             node_filter = json_data.get('node_filter', None)
 
             if design_id is None or action is None:
@@ -64,7 +84,14 @@ class TaskResource(StatefulResource):
         self.orchestrator = orchestrator
 
     def on_get(self, req, resp, task_id):
+        ctx = req.context
+        policy_action = 'physical_provisioner:read_task'
+
         try:
+            if not self.check_policy(policy_action, ctx):
+                self.access_denied(req, resp, policy_action)
+                return
+
             task = self.state_manager.get_task(task_id)
 
             if task is None:
