@@ -57,3 +57,10 @@ class ClientError(Exception):
         self.message = msg
         self.status_code = code
 
+class ClientUnauthorizedError(ClientError):
+    def __init__(self, msg):
+        super().__init__(msg, code=401)
+
+class ClientForbiddenError(ClientError):
+    def __init__(self, msg):
+        super().__init__(msg, code=403)
