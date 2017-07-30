@@ -11,10 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import falcon.request as request
 import uuid
 import json
 import logging
+
+from falcon.request import Request
+from falcon import HTTP_403
+from falcon import HTTP_401
 
 import drydock_provisioner.error as errors
 
@@ -34,10 +37,10 @@ class BaseResource(object):
     def access_denied(self, req, resp, action):
         if req.context.authenticated:
             self.info(req.context, "Error - Forbidden access - action: %s" % action)
-            self.return_error(resp, falcon.HTTP_403, message="Forbidden", retry=False)
+            self.return_error(resp, HTTP_403, message="Forbidden", retry=False)
         else:
             self.info(req.context, "Error - Unauthenticated access")
-            self.return_error(resp, falcon.HTTP_401, message="Unauthenticated", retry=False)
+            self.return_error(resp, HTTP_401, message="Unauthenticated", retry=False)
 
     def on_options(self, req, resp):
         self_attrs = dir(self)
@@ -165,5 +168,5 @@ class DrydockRequestContext(object):
         return policy_dict
 
 
-class DrydockRequest(request.Request):
+class DrydockRequest(Request):
     context_type = DrydockRequestContext
