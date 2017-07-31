@@ -36,6 +36,8 @@ import pkgutil
 
 from oslo_config import cfg
 
+import keystoneauth1.loading as loading
+
 class DrydockConfig(object):
     """
     Initialize all the core options
@@ -118,6 +120,8 @@ def list_opts():
     module_names = _list_module_names(package_path, parent_module)
     imported_modules = _import_modules(module_names)
     _append_config_options(imported_modules, opts)
+    # Assume we'll use the password plugin, so include those options in the configuration template
+    opts['keystone_authtoken_password'] = loading.get_auth_plugin_conf_options('password')
     return _tupleize(opts)
 
 def _tupleize(d):
