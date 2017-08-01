@@ -123,7 +123,7 @@ class DrydockRequestContext(object):
         self.user = None    # Username
         self.user_id = None # User ID (UUID)
         self.user_domain_id = None # Domain owning user
-        self.roles = ['anyone']
+        self.roles = []
         self.project_id = None
         self.project_domain_id = None # Domain owning project
         self.is_admin_project = False
