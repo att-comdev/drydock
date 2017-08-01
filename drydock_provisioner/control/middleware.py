@@ -16,8 +16,6 @@ import logging
 import uuid
 import re
 
-import falcon
-
 from oslo_config import cfg
 
 class AuthMiddleware(object):
