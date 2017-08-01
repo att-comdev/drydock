@@ -48,7 +48,6 @@ class TasksResource(StatefulResource):
         try:
             json_data = self.req_json(req)
             
-            design_id = json_data.get('design_id', None)
             action = json_data.get('action', None)
             policy_action = "physical_provisioner:%s" % action
 
@@ -56,6 +55,7 @@ class TasksResource(StatefulResource):
                 self.access_denied(req, resp, policy_action)
                 return
 
+            design_id = json_data.get('design_id', None)
             node_filter = json_data.get('node_filter', None)
 
             if design_id is None or action is None:
