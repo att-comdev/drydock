@@ -80,11 +80,11 @@ class TestAuthMiddleware():
 
         req_env = TestAuthMiddleware.ks_user_env
 
-        project_id = str(uuid.uuid4())
+        project_id = str(uuid.uuid4().hex)
         req_env['HTTP_X_PROJECT_ID'] = project_id
-        user_id = str(uuid.uuid4())
+        user_id = str(uuid.uuid4().hex)
         req_env['HTTP_X_USER_ID'] = user_id
-        token = str(uuid.uuid4())
+        token = str(uuid.uuid4().hex)
         req_env['HTTP_X_AUTH_TOKEN'] = token
 
         
