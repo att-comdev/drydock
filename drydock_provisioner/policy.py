@@ -28,21 +28,34 @@ class DrydockPolicy(object):
 
     # Orchestrator Policy
     task_rules = [
-        policy.RuleDefault('physical_provisioner:read_task', 'role:operator', description='Get task status'),
-        policy.RuleDefault('physical_provisioner:validate_design', 'role:operator', description='Create validate_design task'),
-        policy.RuleDefault('physical_provisioner:verify_site', 'role:operator', description='Create verify_site task'),
-        policy.RuleDefault('physical_provisioner:prepare_site', 'role:operator', description='Create prepare_site task'),
-        policy.RuleDefault('physical_provisioner:verify_node', 'role:operator', description='Create verify_node task'),
-        policy.RuleDefault('physical_provisioner:prepare_node', 'role:operator', description='Create prepare_node task'),
-        policy.RuleDefault('physical_provisioner:deploy_node', 'role:operator', description='Create deploy_node task'),
-        policy.RuleDefault('physical_provisioner:destroy_node', 'role:operator', description='Create destroy_node task'),
+        policy.DocumentedRuleDefault('physical_provisioner:read_task', 'role:admin', 'Get task status',
+                                     [{'path': '/api/v1.0/tasks', 'method': 'GET'},
+                                      {'path': '/api/v1.0/tasks/{task_id}', 'method': 'GET'}]),
+        policy.DocumentedRuleDefault('physical_provisioner:validate_design', 'role:admin', 'Create validate_design task',
+                                     [{'path': '/api/v1.0/tasks', 'method': 'POST'}]),
+        policy.DocumentedRuleDefault('physical_provisioner:verify_site', 'role:admin', 'Create verify_site task',
+                                     [{'path': '/api/v1.0/tasks', 'method': 'POST'}]),
+        policy.DocumentedRuleDefault('physical_provisioner:prepare_site', 'role:admin', 'Create prepare_site task',
+                                     [{'path': '/api/v1.0/tasks', 'method': 'POST'}]),
+        policy.DocumentedRuleDefault('physical_provisioner:verify_node', 'role:admin', 'Create verify_node task',
+                                     [{'path': '/api/v1.0/tasks', 'method': 'POST'}]),
+        policy.DocumentedRuleDefault('physical_provisioner:prepare_node', 'role:admin', 'Create prepare_node task',
+                                     [{'path': '/api/v1.0/tasks', 'method': 'POST'}]),
+        policy.DocumentedRuleDefault('physical_provisioner:deploy_node', 'role:admin', 'Create deploy_node task',
+                                     [{'path': '/api/v1.0/tasks', 'method': 'POST'}]),
+        policy.DocumentedRuleDefault('physical_provisioner:destroy_node', 'role:admin', 'Create destroy_node task',
+                                     [{'path': '/api/v1.0/tasks', 'method': 'POST'}]),
 
     ]
 
     # Data Management Policy
     data_rules = [
-        policy.RuleDefault('physical_provisioner:read_data', 'role:user', description='Read loaded design data'),
-        policy.RuleDefault('physical_provisioner:ingest_data', 'role:operator', description='Load design data'),
+        policy.DocumentedRuleDefault('physical_provisioner:read_data', 'role:admin', 'Read loaded design data',
+                                     [{'path': '/api/v1.0/designs', 'method': 'GET'},
+                                      {'path': '/api/v1.0/designs/{design_id}', 'method': 'GET'}]),
+        policy.DocumentedRuleDefault('physical_provisioner:ingest_data', 'role:admin', 'Load design data',
+                                     [{'path': '/api/v1.0/designs', 'method': 'POST'},
+                                      {'path': '/api/v1.0/designs/{design_id}/parts', 'method': 'POST'}])
     ]
 
     def __init__(self):
