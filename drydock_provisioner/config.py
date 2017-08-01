@@ -56,13 +56,6 @@ class DrydockConfig(object):
         cfg.StrOpt('control_logger_name', default='${global_logger_name}.control', help='Logger name for API server logging'),
     ]
 
-    # API Authentication options
-    auth_options = [
-        cfg.StrOpt('auth_strategy', default='keystone', help='Client request authentication strategy'),
-        cfg.StrOpt('admin_token', default='bigboss', help='X-Auth-Token value to bypass backend authentication', secret=True),
-        cfg.BoolOpt('bypass_enabled', default=False, help='Can backend authentication be bypassed?'),
-    ]
-
     # Enabled plugins
     plugin_options = [
         cfg.MultiStrOpt('ingester',
@@ -98,7 +91,6 @@ class DrydockConfig(object):
     def register_options(self):
         self.conf.register_opts(DrydockConfig.options)
         self.conf.register_opts(DrydockConfig.logging_options, group='logging')
-        self.conf.register_opts(DrydockConfig.auth_options, group='authentication')
         self.conf.register_opts(DrydockConfig.plugin_options, group='plugins')
         self.conf.register_opts(DrydockConfig.timeout_options, group='timeouts')
 
@@ -110,7 +102,6 @@ config_mgr = DrydockConfig()
 def list_opts():
     opts = {'DEFAULT': DrydockConfig.options,
             'logging': DrydockConfig.logging_options,
-            'authentication': DrydockConfig.auth_options,
             'plugins': DrydockConfig.plugin_options,
             'timeouts': DrydockConfig.timeout_options
         }
