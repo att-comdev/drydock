@@ -27,14 +27,16 @@ The service account must then be included in the drydock.conf::
     auth_version = 3
     delay_auth_decision = true
     auth_type = password
-    auth_section = keystone_authtoken
-    project_domain_name = ucp
+    auth_section = keystone_authtoken_password
+
+    [keystone_authtoken_password]
+    auth_url = http://<keystone_ip>:5000
     project_name = service
+    project_domain_name = ucp
+    user_name = drydock 
     user_domain_name = ucp
-    username = drydock
     password = drydock
-    identity_uri = http://<keystone_ip>:5000/
-    auth_url = http://<keystone_ip>:5000/
+
 
 MaaS Integration
 ================
